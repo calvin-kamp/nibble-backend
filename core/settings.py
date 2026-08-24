@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "recipes",
 ]
 
 
@@ -125,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # ------------------------------------------------------------------------------
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "de-de"
 
 TIME_ZONE = "UTC"
 
@@ -135,10 +136,13 @@ USE_TZ = True
 
 
 # ------------------------------------------------------------------------------
-# Static files
+# Static & Media files
 # ------------------------------------------------------------------------------
 
 STATIC_URL = "static/"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # ------------------------------------------------------------------------------

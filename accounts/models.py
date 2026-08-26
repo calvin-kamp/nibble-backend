@@ -10,10 +10,6 @@ def current_tos_version():
     return settings.TOS_CONSENT_VERSION
 
 
-def current_data_consent():
-    return settings.SENSITIVE_DATA_CONSENT_VERSION
-
-
 # Create your models here.
 class UserManager(BaseUserManager):
     @classmethod
@@ -162,7 +158,7 @@ class Profile(models.Model):
     data_consent = models.BooleanField(default=False)
     data_consent_date_granted = models.DateTimeField(blank=True, null=True)
     data_consent_date_revoked = models.DateTimeField(blank=True, null=True)
-    data_consent_version = models.IntegerField(default=current_data_consent)
+    data_consent_version = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         if self.username:

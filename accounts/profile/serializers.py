@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -66,6 +67,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
         if data_consent is True and self.instance.data_consent is False:
             attrs["data_consent_date_granted"] = timezone.now()
+            attrs["data_consent_version"] = settings.SENSITIVE_DATA_CONSENT_VERSION
 
         if data_consent is False and self.instance.data_consent is True:
             attrs["data_consent_date_revoked"] = timezone.now()

@@ -14,6 +14,11 @@ from recipes.models import (
 )
 
 
+class ChoiceSlugRelatedField(serializers.SlugRelatedField):
+    def to_representation(self, obj):
+        return getattr(obj, f"get_{self.slug_field}_display")()
+
+
 class CookingStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = CookingStep
@@ -49,11 +54,31 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
-    diets = serializers.StringRelatedField(many=True)
-    intolerances = serializers.StringRelatedField(many=True)
-    meal_types = serializers.StringRelatedField(many=True)
-    equipment = serializers.StringRelatedField(many=True)
-    attributes = serializers.StringRelatedField(many=True)
+    diets = ChoiceSlugRelatedField(
+        slug_field="diet",
+        many=True,
+        read_only=True,
+    )
+    intolerances = ChoiceSlugRelatedField(
+        slug_field="intolerance",
+        many=True,
+        read_only=True,
+    )
+    meal_types = ChoiceSlugRelatedField(
+        slug_field="meal_type",
+        many=True,
+        read_only=True,
+    )
+    equipment = ChoiceSlugRelatedField(
+        slug_field="equipment",
+        many=True,
+        read_only=True,
+    )
+    attributes = ChoiceSlugRelatedField(
+        slug_field="attribute",
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = Recipe
@@ -78,61 +103,35 @@ class RecipeDetailSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientSerializer(many=True)
     cooking_steps = CookingStepSerializer(many=True)
 
-    diets = serializers.PrimaryKeyRelatedField(
-        required=False,
-        many=True,
+    diets = ChoiceSlugRelatedField(
+        slug_field="diet",
         queryset=Diet.objects.all(),
-        write_only=True,
-    )
-    intolerances = serializers.PrimaryKeyRelatedField(
-        required=False,
         many=True,
+        required=False,
+    )
+    intolerances = ChoiceSlugRelatedField(
+        slug_field="intolerance",
         queryset=Intolerance.objects.all(),
-        write_only=True,
-    )
-    meal_types = serializers.PrimaryKeyRelatedField(
-        required=False,
         many=True,
+        required=False,
+    )
+    meal_types = ChoiceSlugRelatedField(
+        slug_field="meal_type",
         queryset=MealType.objects.all(),
-        write_only=True,
-    )
-    equipment = serializers.PrimaryKeyRelatedField(
-        required=False,
         many=True,
+        required=False,
+    )
+    equipment = ChoiceSlugRelatedField(
+        slug_field="equipment",
         queryset=Equipment.objects.all(),
-        write_only=True,
-    )
-    attributes = serializers.PrimaryKeyRelatedField(
+        many=True,
         required=False,
-        many=True,
+    )
+    attributes = ChoiceSlugRelatedField(
+        slug_field="attribute",
         queryset=Attribute.objects.all(),
-        write_only=True,
-    )
-
-    diet_labels = serializers.StringRelatedField(
         many=True,
-        source="diets",
-        read_only=True,
-    )
-    intolerance_labels = serializers.StringRelatedField(
-        many=True,
-        source="intolerances",
-        read_only=True,
-    )
-    meal_type_labels = serializers.StringRelatedField(
-        many=True,
-        source="meal_types",
-        read_only=True,
-    )
-    equipment_labels = serializers.StringRelatedField(
-        many=True,
-        source="equipment",
-        read_only=True,
-    )
-    attribute_labels = serializers.StringRelatedField(
-        many=True,
-        source="attributes",
-        read_only=True,
+        required=False,
     )
 
     class Meta:
@@ -156,11 +155,6 @@ class RecipeDetailSerializer(serializers.ModelSerializer):
             "meal_types",
             "equipment",
             "attributes",
-            "diet_labels",
-            "intolerance_labels",
-            "meal_type_labels",
-            "equipment_labels",
-            "attribute_labels",
             "updated_at",
             "created_at",
         )
@@ -193,6 +187,7 @@ class RecipeDetailSerializer(serializers.ModelSerializer):
             ingredient_obj, _created = Ingredient.objects.get_or_create(
                 name=ingredient_name
             )
+
             RecipeIngredient.objects.create(
                 recipe=recipe,
                 ingredient=ingredient_obj,

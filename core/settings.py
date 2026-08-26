@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
+    "recipes",
 ]
 
 
@@ -62,7 +64,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = "core.urls"
 
 
 # ------------------------------------------------------------------------------
@@ -84,7 +86,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # ------------------------------------------------------------------------------
@@ -103,7 +105,7 @@ DATABASES = {
 # Authentication
 # ------------------------------------------------------------------------------
 
-AUTH_USER_MODEL = "accounts.User"
+# AUTH_USER_MODEL = "accounts.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # ------------------------------------------------------------------------------
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "de-de"
 
 TIME_ZONE = "UTC"
 
@@ -135,10 +137,13 @@ USE_TZ = True
 
 
 # ------------------------------------------------------------------------------
-# Static files
+# Static & Media files
 # ------------------------------------------------------------------------------
 
 STATIC_URL = "static/"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # ------------------------------------------------------------------------------
@@ -159,6 +164,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication"
     ],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 

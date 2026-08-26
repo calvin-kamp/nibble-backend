@@ -5,9 +5,10 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-from .views import LoginView, RegisterView
+from .views import CurrentUserView, LoginView, RegisterView
 
 urlpatterns = [
+    path("me/", CurrentUserView.as_view(), name="current_user"),
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", TokenBlacklistView.as_view(), name="token_blacklist"),

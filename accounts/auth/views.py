@@ -2,8 +2,9 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import RegisterSerializer
+from .serializers import LoginSerializer, RegisterSerializer, UserSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -20,9 +21,11 @@ class RegisterView(generics.CreateAPIView):
 
         return Response(
             {
-                "user": serializer.data,
-                "access": str(refresh_token.access_token),
-                "refresh": str(refresh_token),
+                "user": UserSerializer(user).data,
+                "tokens": {
+                    "access": str(refresh_token.access_token),
+                    "refresh": str(refresh_token),
+                },
             },
             status=status.HTTP_201_CREATED,
             headers=headers,
@@ -30,3 +33,7 @@ class RegisterView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         return serializer.save()
+
+
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer

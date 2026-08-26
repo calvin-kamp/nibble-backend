@@ -3,8 +3,15 @@ from django.contrib.auth.password_validation import (
 )
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from accounts.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "email")
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -69,3 +76,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(email, password, **validated_data)
 
         return user
+
+
+class LoginSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data["user"] = UserSerializer(self.user).data
+
+        return data

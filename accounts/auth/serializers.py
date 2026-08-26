@@ -2,10 +2,11 @@ from django.contrib.auth.password_validation import (
     validate_password as django_validate_password,
 )
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from accounts.models import User
+from accounts.models import Profile, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -73,7 +74,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password")
         validated_data.pop("password_confirm")
 
-        user = User.objects.create_user(email, password, **validated_data)
+        with transaction.atomic():
+            user = User.objects.create_user(email, password, **validated_data)
+            Profile.objects.create(user=user)
 
         return user
 

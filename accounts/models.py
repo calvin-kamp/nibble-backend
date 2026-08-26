@@ -10,6 +10,10 @@ def current_tos_version():
     return settings.TOS_CONSENT_VERSION
 
 
+def current_data_consent():
+    return settings.SENSITIVE_DATA_CONSENT_VERSION
+
+
 # Create your models here.
 class UserManager(BaseUserManager):
     @classmethod
@@ -76,3 +80,92 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class Profile(models.Model):
+    class GoalChoices(models.TextChoices):
+        LOSE_WEIGHT = "diet", "Abnehmen"
+        MAINTAIN_WEIGHT = "maintain", "Gewicht halten"
+        GAIN_WEIGHT = "gain", "Zunehmen"
+
+    class SexChoices(models.TextChoices):
+        MALE = (
+            "male",
+            "Männlich",
+        )
+        FEMALE = "female", "Weiblich"
+
+    username = models.CharField(
+        unique=True,
+        max_length=32,
+        blank=True,
+        null=True,
+    )
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+
+    sex = models.CharField(
+        choices=SexChoices,
+        max_length=6,
+        blank=True,
+        null=True,
+    )
+
+    height = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+
+    weight = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        blank=True,
+        null=True,
+    )
+
+    target_calories = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+
+    target_fat = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+
+    target_protein = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+
+    target_carbs = models.IntegerField(
+        blank=True,
+        null=True,
+    )
+
+    goal = models.CharField(
+        choices=GoalChoices,
+        blank=True,
+        null=True,
+        max_length=15,
+    )
+
+    date_of_birth = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    data_consent = models.BooleanField(default=False)
+    data_consent_date_granted = models.DateTimeField(blank=True, null=True)
+    data_consent_date_revoked = models.DateTimeField(blank=True, null=True)
+    data_consent_version = models.IntegerField(default=current_data_consent)
+
+    def __str__(self):
+        if self.username:
+            return self.username
+
+        return str(self.user)

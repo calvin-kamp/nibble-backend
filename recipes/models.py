@@ -4,73 +4,96 @@ from django.db import models
 
 # Create your models here.
 class Ingredient(models.Model):
-    name = models.CharField(max_length=60)
+    name = models.CharField(
+        max_length=60,
+        unique=True,
+    )
 
     def __str__(self):
         return self.name
 
 
 class Diet(models.Model):
-    class DietChoice(models.IntegerChoices):
-        VEGAN = 10, "Vegan"
-        VEGETARISCH = 11, "Vegetarisch"
-        PESCETARISCH = 12, "Pescetarisch"
+    class DietChoice(models.TextChoices):
+        VEGAN = "vegan", "Vegan"
+        VEGETARISCH = "vegetarisch", "Vegetarisch"
+        PESCETARISCH = "pescetarisch", "Pescetarisch"
 
-    diet = models.IntegerField(choices=DietChoice)
+    diet = models.CharField(
+        choices=DietChoice,
+        max_length=12,
+        unique=True,
+    )
 
     def __str__(self):
         return self.get_diet_display()
 
 
 class Intolerance(models.Model):
-    class IntoleranceChoice(models.IntegerChoices):
-        GLUTENFREI = 10, "Glutenfrei"
-        LAKTOSEFREI = 11, "Laktosefrei"
+    class IntoleranceChoice(models.TextChoices):
+        GLUTENFREI = "glutenfrei", "Glutenfrei"
+        LAKTOSEFREI = "laktosefrei", "Laktosefrei"
 
-    intolerance = models.IntegerField(choices=IntoleranceChoice)
+    intolerance = models.CharField(
+        choices=IntoleranceChoice,
+        max_length=11,
+        unique=True,
+    )
 
     def __str__(self):
         return self.get_intolerance_display()
 
 
 class MealType(models.Model):
-    class MealTypeChoice(models.IntegerChoices):
-        FRUEHSTUECK = 10, "Frühstück"
-        MITTAGESSEN = 11, "Mittagessen"
-        ABENDESSEN = 12, "Abendessen"
+    class MealTypeChoice(models.TextChoices):
+        FRUEHSTUECK = "fruehstueck", "Frühstück"
+        MITTAGESSEN = "mittagessen", "Mittagessen"
+        ABENDESSEN = "abendessen", "Abendessen"
 
-        SNACK = 20, "Snack"
-        DESSERT = 21, "Dessert"
+        SNACK = "snack", "Snack"
+        DESSERT = "dessert", "Dessert"
 
-    meal_type = models.IntegerField(choices=MealTypeChoice)
+    meal_type = models.CharField(
+        choices=MealTypeChoice,
+        max_length=11,
+        unique=True,
+    )
 
     def __str__(self):
         return self.get_meal_type_display()
 
 
 class Equipment(models.Model):
-    class EquipmentChoice(models.IntegerChoices):
-        BACKOFEN = 10, "Backofen"
-        HERD = 11, "Herd"
-        AIRFRYER = 12, "Airfryer"
-        MIXER = 13, "Mixer"
-        OHNE_KOCHEN = 14, "Ohne Kochen"
+    class EquipmentChoice(models.TextChoices):
+        BACKOFEN = "backofen", "Backofen"
+        HERD = "herd", "Herd"
+        AIRFRYER = "airfryer", "Airfryer"
+        MIXER = "mixer", "Mixer"
+        OHNE_KOCHEN = "ohne-kochen", "Ohne Kochen"
 
-    equipment = models.IntegerField(choices=EquipmentChoice)
+    equipment = models.CharField(
+        choices=EquipmentChoice,
+        max_length=11,
+        unique=True,
+    )
 
     def __str__(self):
         return self.get_equipment_display()
 
 
 class Attribute(models.Model):
-    class AttributeChoice(models.IntegerChoices):
-        PROTEINREICH = 10, "Proteinreich"
-        KALORIENARM = 11, "Kalorienarm"
-        MEAL_PREP = 12, "Meal Prep"
-        UNTER_30_MIN = 13, "Unter 30 Min"
-        WENIG_ZUTATEN = 14, "Wenig Zutaten"
+    class AttributeChoice(models.TextChoices):
+        PROTEINREICH = "proteinreich", "Proteinreich"
+        KALORIENARM = "kalorienarm", "Kalorienarm"
+        MEAL_PREP = "meal-prep", "Meal Prep"
+        UNTER_30_MIN = "unter-30-min", "Unter 30 Min"
+        WENIG_ZUTATEN = "wenig-zutaten", "Wenig Zutaten"
 
-    attribute = models.IntegerField(choices=AttributeChoice)
+    attribute = models.CharField(
+        choices=AttributeChoice,
+        max_length=13,
+        unique=True,
+    )
 
     def __str__(self):
         return self.get_attribute_display()
@@ -156,6 +179,9 @@ class CookingStep(models.Model):
     )
     text = models.TextField(max_length=500)
     step = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ["step"]
 
     def __str__(self):
         return f"{self.step}. {self.text}"

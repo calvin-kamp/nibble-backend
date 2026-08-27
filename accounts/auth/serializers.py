@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import (
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from accounts.models import Profile, User
@@ -16,6 +17,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                lookup="iexact",
+                message="Diese E-Mail-Adresse wird bereits verwendet.",
+            )
+        ],
+    )
     password_confirm = serializers.CharField(
         required=True,
         write_only=True,
@@ -24,6 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            "id",
             "email",
             "password",
             "password_confirm",
@@ -36,15 +48,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             "tos_accepted": {
                 "required": True,
                 "write_only": True,
+                "error_messages": {
+                    "required": "Bitte stimme den AGB zu.",
+                },
             },
         }
 
     def validate_email(self, value):
-        user = User.objects.filter(email__iexact=value)
-
-        if user.exists():
-            raise serializers.ValidationError("Email Adresse bereits in nutzung.")
-
         return value.lower()
 
     def validate_password(self, value):
@@ -57,14 +67,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_tos_accepted(self, value):
         if value is not True:
-            raise serializers.ValidationError("Bitte akzeptiere die AGB.")
+            raise serializers.ValidationError("Bitte stimme den AGB zu.")
 
         return value
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password_confirm"]:
             raise serializers.ValidationError(
-                {"password_confirm": "Passwörter stimmen nicht überein."}
+                {"password_confirm": "Die Passwörter stimmen nicht überein."}
             )
 
         return attrs

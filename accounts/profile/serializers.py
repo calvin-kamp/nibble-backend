@@ -1,12 +1,25 @@
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from accounts.models import Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
+    username = serializers.CharField(
+        max_length=32,
+        required=False,
+        allow_null=True,
+        validators=[
+            UniqueValidator(
+                queryset=Profile.objects.all(),
+                lookup="iexact",
+                message="Dieser Benutzername ist bereits vergeben.",
+            )
+        ],
+    )
 
     class Meta:
         model = Profile
@@ -34,17 +47,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
         )
 
-    def validate_username(self, value):
-        queryset = Profile.objects.filter(username=value)
-
-        if self.instance is not None:
-            queryset = queryset.exclude(pk=self.instance.pk)
-
-        if queryset.exists():
-            raise serializers.ValidationError("Benutzername bereits in Nutzung.")
-
-        return value
-
     def validate(self, attrs):
         data_consent = attrs.get("data_consent", self.instance.data_consent)
 
@@ -59,12 +61,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             attrs["goal"] = None
             attrs["date_of_birth"] = None
 
-        if (
-            self.instance.data_consent_date_granted is not None
-            and data_consent is False
-        ):
-            attrs["data_consent_date_revoked"] = timezone.now()
-
         if data_consent is True and self.instance.data_consent is False:
             attrs["data_consent_date_granted"] = timezone.now()
             attrs["data_consent_version"] = settings.SENSITIVE_DATA_CONSENT_VERSION
@@ -72,4 +68,4 @@ class ProfileSerializer(serializers.ModelSerializer):
         if data_consent is False and self.instance.data_consent is True:
             attrs["data_consent_date_revoked"] = timezone.now()
 
-        return super().validate(attrs)
+        return attrs

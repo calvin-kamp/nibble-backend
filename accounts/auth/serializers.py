@@ -61,7 +61,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         try:
             django_validate_password(value)
         except DjangoValidationError as exc:
-            raise serializers.ValidationError(list(exc.messages))
+            raise serializers.ValidationError(list(exc.messages)) from exc
 
         return value
 

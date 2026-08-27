@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_filters",
+    "django_extensions",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -155,7 +156,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ------------------------------------------------------------------------------
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
-
+CORS_ALLOW_CREDENTIALS = True
 
 # ==============================================================================
 # Django REST Framework
@@ -187,7 +188,19 @@ SIMPLE_JWT = {
 
 
 # ==============================================================================
-# Nibbel
+# AUTH_COOKIE
+# ==============================================================================
+
+AUTH_COOKIE = {
+    "NAME": "refresh_token",
+    "PATH": "/auth/",
+    "SAMESITE": "Lax",
+    "SECURE": env.bool("AUTH_COOKIE_SECURE", default=True),
+}
+
+
+# ==============================================================================
+# Nibble
 # ==============================================================================
 
 TOS_CONSENT_VERSION = 1
